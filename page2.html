@@ -1,32 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta charset="utf-8">
-  <title>Enter if you dare</title>
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="../css/normalize.css">
-  <link rel="stylesheet" href="../css/styles.css">
-  <link rel="stylesheet" href="../css/Kiara.css">
-  <link rel="stylesheet" href="../css/animals.css">
-
-  <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="../images/favicon.ico">
+  <meta charset="UTF-8">
+  <title>Dancing Words</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
 </head>
-
 <body>
+  <h1>Dancing Words</h1>
+  <script>
+    // Dancing Words Code
 
+    let dancingWords = [];
 
+    class DanceSpan {
+      constructor(element, x, y) {
+        element.position(x, y);
+        this.element = element;
+        this.x = x;
+        this.y = y;
+      }
+
+      brownian() {
+        this.x += random(-6, 6);
+        this.y += random(-6, 6);
+        this.element.position(this.x, this.y);
+      }
+    }
+
+    function setup() {
+      const paragraph = "I learn in this Letter, that Don Peter of Aragon, comes this night to Messina";
+      const words = paragraph.split(' ');
+      for (let j = 0; j < words.length; j++) {
+        const spannedWord = createSpan(words[j] + " ");
+        const dw = new DanceSpan(spannedWord, random(600), random(200));
+        dancingWords.push(dw);
+      }
+    }
+
+    function draw() {
+      for (let i = 0; i < dancingWords.length; i++) {
+        dancingWords[i].brownian();
+      }
+    }
+  </script>
 </body>
 </html>

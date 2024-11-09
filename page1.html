@@ -1,72 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <meta charset="utf-8" />
+<head>
+  <meta charset="UTF-8">
+  <title>Snake Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+</head>
+<body>
+  <h1>Snake Game</h1>
+  <div id="score">Score = 0</div>
+  <script>
+    // Snake Game Code
 
-  </head>
-  <body>
-    <script>
-      /*
- * @name Modifying the DOM
- * @arialabel Words in black font jittering on a white background
- * @frame 710,300
- * @description Create DOM elements and modify their properties every time
- * draw() is called.
- */
-let dancingWords = [];
+    let numSegments = 10;
+    let direction = 'right';
+    const xStart = 0;
+    const yStart = 250;
+    const diff = 10;
+    let xCor = [];
+    let yCor = [];
+    let xFruit = 0;
+    let yFruit = 0;
+    let scoreElem;
 
-class DanceSpan {
-  constructor(element, x, y) {
-    element.position(x, y);
-    this.element = element;
-    this.x = x;
-    this.y = y;
-  }
+    function setup() {
+      createCanvas(500, 500);
+      frameRate(15);
+      stroke(255);
+      strokeWeight(10);
+      updateFruitCoordinates();
 
-  brownian() {
-    this.x += random(-6, 6);
-    this.y += random(-6, 6);
-    this.element.position(this.x, this.y);
-  }
-}
-
-function setup() {
-  // This paragraph is created aside of the main block of code.
-  // It's to differentiate the creation of an element from its
-  // selection. Selected elements don't need to be created by
-  // p5js, they can be just plain HTML.
-  createP(
-    'I learn in this Letter, that Don Peter of Aragon, ' +
-      ' comes this night to Messina'
-  ).addClass('text').hide();
-
-  // This line grabs the paragraph just created, but it would
-  // also grab any other elements with class 'text' in the HTML
-  // page.
-  const texts = selectAll('.text');
-
-  for (let i = 0; i < texts.length; i++) {
-    const paragraph = texts[i].html();
-    const words = paragraph.split(' ');
-    for (let j = 0; j < words.length; j++) {
-      const spannedWord = createSpan(words[j]);
-      const dw = new DanceSpan(spannedWord, random(600), random(200));
-      dancingWords.push(dw);
+      for (let i = 0; i < numSegments; i++) {
+        xCor.push(xStart + i * diff);
+        yCor.push(yStart);
+      }
     }
-  }
-}
 
-function draw() {
-  for (let i = 0; i < dancingWords.length; i++) {
-    dancingWords[i].brownian();
-  }
-}
+    function draw() {
+      background(0);
+      for (let i = 0; i < numSegments - 1; i++) {
+        line(xCor[i], yCor[i], xCor[i + 1], yCor[i + 1]);
+      }
+      updateSnakeCoordinates();
+      checkGameStatus();
+      checkForFruit();
+    }
 
-    </script>
-    <main>
-    </main>
-    <script src="sketch.js"></script>
-  </body>
+    function updateSnakeCoordinates() {
+      for (let i = 0; i < numSegments - 1; i++) {
+        xCor[i] = xCor[i + 1];
+        yCor[i] = yCor[i + 1];
+      }
+      switch (direction) {
+        case 'right':
+          xCor[numSegments - 1] = xCor[numSegments - 2] + diff;
+          yCor[numSegments - 1] = yCor[numSegments - 2];
+          break;
+        case 'up':
+          xCor[numSegments - 1] = xCor[numSegments - 2];
+          yCor[numSegments - 1] = yCor[numSegments - 2] - diff;
+          break;
+        case 'left':
+          xCor[numSegments - 1] = xCor[numSegments - 2] - diff;
+          yCor[numSegments - 1] = yCor[numSegments - 2];
+          break;
+        case 'down':
+          xCor[numSegments - 1] = xCor[numSegments - 2];
+          yCor[numSegments - 1] = yCor[numSegments - 2] + diff;
+          break;
+      }
+    }
+
+    function checkGameStatus() {
+      if (xCor[xCor.length - 1] > width || xCor[xCor.length - 1] < 0 ||
+          yCor[yCor.length - 1] > height || yCor[yCor.length - 1] < 0 || checkSnakeCollision()) {
+        noLoop();
+        document.getElementById("score").innerHTML = `Game ended! Your score was: ${numSegments - 10}`;
+      }
+    }
+
+    function checkSnakeCollision() {
+      const snakeHeadX = xCor[xCor.length - 1];
+      const snakeHeadY = yCor[yCor.length - 1];
+      for (let i = 0; i < xCor.length - 1; i++) {
+        if (xCor[i] === snakeHeadX && yCor[i] === snakeHeadY) {
+          return true;
+        }
+      }
+    }
+
+    function checkForFruit() {
+      point(xFruit, yFruit);
+      if (xCor[xCor.length - 1] === xFruit && yCor[yCor.length - 1] === yFruit) {
+        xCor.unshift(xCor[0]);
+        yCor.unshift(yCor[0]);
+        numSegments++;
+        document.getElementById("score").innerHTML = `Score = ${numSegments - 10}`;
+        updateFruitCoordinates();
+      }
+    }
+
+    function updateFruitCoordinates() {
+      xFruit = floor(random(10, (width - 100) / 10)) * 10;
+      yFruit = floor(random(10, (height - 100) / 10)) * 10;
+    }
+
+    function keyPressed() {
+      switch (keyCode) {
+        case 74: if (direction !== 'right') direction = 'left'; break;
+        case 76: if (direction !== 'left') direction = 'right'; break;
+        case 73: if (direction !== 'down') direction = 'up'; break;
+        case 75: if (direction !== 'up') direction = 'down'; break;
+      }
+    }
+  </script>
+</body>
 </html>
