@@ -4,20 +4,38 @@
   <meta charset="UTF-8">
   <title>Dancing Words</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+  <style>
+    /* Add some basic styles to make the words stand out more */
+    .dancing-word {
+      display: inline-block;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 5px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .clicked {
+      font-size: 28px;
+      background-color: #ffcc00 !important; /* Highlight clicked words with yellow */
+      color: black;
+      transform: scale(1.3);
+    }
+  </style>
 </head>
 <body>
   <h1>Dancing Words</h1>
   <script>
-    // Dancing Words Code
-
     let dancingWords = [];
 
     class DanceSpan {
       constructor(element, x, y) {
         element.position(x, y);
+        element.addClass('dancing-word'); // Add class for styling
         this.element = element;
         this.x = x;
         this.y = y;
+        this.clicked = false; // Track if the word has been clicked
       }
 
       brownian() {
@@ -25,11 +43,26 @@
         this.y += random(-6, 6);
         this.element.position(this.x, this.y);
       }
+
+      // Check if the word is clicked
+      checkClick() {
+        let distance = dist(mouseX, mouseY, this.x, this.y);
+        return distance < 40; // Increase click range to make it easier
+      }
+
+      // Change background color and apply animation when clicked
+      changeColorAndEffect() {
+        if (this.clicked) {
+          this.element.addClass('clicked'); // Add the 'clicked' class to trigger styles
+        }
+      }
     }
 
     function setup() {
-      const paragraph = "I learn in this Letter, that Don Peter of Aragon, comes this night to Messina";
+      createCanvas(windowWidth, windowHeight); // Make the canvas size full screen
+      const paragraph = "Hello my name is kiara, nice to meet you remember to click on these words :D";
       const words = paragraph.split(' ');
+
       for (let j = 0; j < words.length; j++) {
         const spannedWord = createSpan(words[j] + " ");
         const dw = new DanceSpan(spannedWord, random(600), random(200));
@@ -38,10 +71,25 @@
     }
 
     function draw() {
+      background(255); // Set the background color
+
+      // Update each dancing word
       for (let i = 0; i < dancingWords.length; i++) {
         dancingWords[i].brownian();
+        dancingWords[i].changeColorAndEffect(); // Apply color and effect when clicked
+      }
+    }
+
+    function mousePressed() {
+      // Check if any word is clicked
+      for (let i = 0; i < dancingWords.length; i++) {
+        if (dancingWords[i].checkClick()) {
+          dancingWords[i].clicked = true; // Mark the word as clicked
+        }
       }
     }
   </script>
+  <div class="text-box">
+    Modified the font size, added click font, and changed the text box to yellow  </div>
 </body>
 </html>

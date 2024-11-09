@@ -4,52 +4,71 @@
   <meta charset="UTF-8">
   <title>Snake Game</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+    }
+    #score {
+      font-size: 20px;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
   <h1>Snake Game</h1>
   <div id="score">Score = 0</div>
   <script>
-    // Snake Game Code
-
     let numSegments = 10;
     let direction = 'right';
-    const xStart = 0;
-    const yStart = 250;
     const diff = 10;
     let xCor = [];
     let yCor = [];
     let xFruit = 0;
     let yFruit = 0;
-    let scoreElem;
+    let colorChange = 0;
 
     function setup() {
       createCanvas(500, 500);
       frameRate(15);
-      stroke(255);
       strokeWeight(10);
       updateFruitCoordinates();
 
+      // Initialize snake coordinates
       for (let i = 0; i < numSegments; i++) {
-        xCor.push(xStart + i * diff);
-        yCor.push(yStart);
+        xCor.push(0 + i * diff);
+        yCor.push(250);
       }
     }
 
     function draw() {
       background(0);
-      for (let i = 0; i < numSegments - 1; i++) {
-        line(xCor[i], yCor[i], xCor[i + 1], yCor[i + 1]);
+      stroke(colorChange % 255, (colorChange + 85) % 255, (colorChange + 170) % 255);
+      colorChange += 5;
+
+      // Draw snake
+      for (let i = 0; i < numSegments; i++) {
+        fill(255);
+        noStroke();
+        rect(xCor[i], yCor[i], diff, diff);
       }
+
       updateSnakeCoordinates();
       checkGameStatus();
       checkForFruit();
     }
 
     function updateSnakeCoordinates() {
+      // Move body segments to the previous segment
       for (let i = 0; i < numSegments - 1; i++) {
         xCor[i] = xCor[i + 1];
         yCor[i] = yCor[i + 1];
       }
+
+      // Update head position based on direction
       switch (direction) {
         case 'right':
           xCor[numSegments - 1] = xCor[numSegments - 2] + diff;
@@ -71,10 +90,11 @@
     }
 
     function checkGameStatus() {
+      // Check if snake collides with walls or itself
       if (xCor[xCor.length - 1] > width || xCor[xCor.length - 1] < 0 ||
           yCor[yCor.length - 1] > height || yCor[yCor.length - 1] < 0 || checkSnakeCollision()) {
         noLoop();
-        document.getElementById("score").innerHTML = `Game ended! Your score was: ${numSegments - 10}`;
+        document.getElementById("score").innerHTML = `Game Over! Your score was: ${numSegments - 10}. Press 'R' to restart.`;
       }
     }
 
@@ -89,7 +109,12 @@
     }
 
     function checkForFruit() {
-      point(xFruit, yFruit);
+      // Draw fruit as a point
+      fill(255, 0, 0);
+      noStroke();
+      ellipse(xFruit, yFruit, diff, diff);
+
+      // If snake eats the fruit
       if (xCor[xCor.length - 1] === xFruit && yCor[yCor.length - 1] === yFruit) {
         xCor.unshift(xCor[0]);
         yCor.unshift(yCor[0]);
@@ -100,18 +125,44 @@
     }
 
     function updateFruitCoordinates() {
-      xFruit = floor(random(10, (width - 100) / 10)) * 10;
-      yFruit = floor(random(10, (height - 100) / 10)) * 10;
+      xFruit = floor(random(0, (width - diff) / diff)) * diff;
+      yFruit = floor(random(0, (height - diff) / diff)) * diff;
     }
 
     function keyPressed() {
-      switch (keyCode) {
-        case 74: if (direction !== 'right') direction = 'left'; break;
-        case 76: if (direction !== 'left') direction = 'right'; break;
-        case 73: if (direction !== 'down') direction = 'up'; break;
-        case 75: if (direction !== 'up') direction = 'down'; break;
+      // Change direction based on key press
+      if (keyCode === LEFT_ARROW && direction !== 'right') {
+        direction = 'left';
+      } else if (keyCode === RIGHT_ARROW && direction !== 'left') {
+        direction = 'right';
+      } else if (keyCode === UP_ARROW && direction !== 'down') {
+        direction = 'up';
+      } else if (keyCode === DOWN_ARROW && direction !== 'up') {
+        direction = 'down';
+      }
+
+      // Restart the game
+      if (key === 'R' || key === 'r') {
+        restartGame();
       }
     }
+
+    function restartGame() {
+      numSegments = 10;
+      direction = 'right';
+      xCor = [];
+      yCor = [];
+      updateFruitCoordinates();
+      for (let i = 0; i < numSegments; i++) {
+        xCor.push(0 + i * diff);
+        yCor.push(250);
+      }
+      loop();
+      document.getElementById("score").innerHTML = `Score = 0`;
+    }
   </script>
+  <div class="text-box">
+    Added the function to restart after death, and changed the snake's design to be more beautiful
+  </div>
 </body>
 </html>
